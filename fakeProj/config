@@ -1,0 +1,11 @@
+PROJECT_DIR;fakeProj
+EXEC;program
+CC;clang
+SOURCES_DIR;source
+CFLAGS;-Wall -Wextra
+LIBS_DIR;lib
+BCK_DIR;backup
+ZIP;tar
+ZIPFLAGS;-cvvf
+main.c
+calc.c

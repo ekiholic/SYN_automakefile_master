@@ -1,0 +1,161 @@
+##
+## EPITECH PROJECT, 2019
+## automakefile
+## File description:
+## synpool
+##
+
+#!/bin/bash
+
+if [ ! -z $2 ]
+then
+    exit 84
+fi
+if [ -z $1 ]
+then
+    exit 84
+fi
+if [ ! -f $1 ]
+then
+    exit 84
+fi
+IFS=";"
+nb_c=0
+nb_src=0
+nb_lib=0
+output=$(cat $1)
+while read -r line; do
+        tab=($line)
+    if [[ ${tab[0]} == "PROJECT_DIR" ]]
+    then
+        proj_dir=${tab[1]}
+    elif [[ ${tab[0]} == "EXEC" ]]
+    then
+        name=${tab[1]}
+    elif [[ ${tab[0]} == "CC" ]]
+    then
+        compil="${tab[1]}"
+    elif [[ ${tab[0]} == "SOURCES_DIR" ]]
+    then
+        src_dir=${tab[1]}
+    elif [[ ${tab[0]} == "HEADERS_DIR" ]]
+    then
+        head_dir=${tab[1]}
+    elif [[ ${tab[0]} == "LIBS_DIR" ]]
+    then
+        lib_dir=${tab[1]}
+    elif [[ ${tab[0]} == "SOURCES_DIR" ]]
+    then
+        src_dir=${tab[1]}
+    elif [[ ${tab[0]} == "CFLAGS" ]]
+    then
+        cflags=${tab[1]}
+    elif [[ ${tab[0]} == "LDFLAGS" ]]
+    then
+        ldflags=${tab[1]}
+    elif [[ ${tab[0]} == "BCK_DIR" ]]
+    then
+        back_up=${tab[1]}
+    elif [[ ${tab[0]} == "ZIP" ]]
+    then
+        comp_bin=${tab[1]}
+    elif [[ ${tab[0]} == "ZIPFLAGS" ]]
+    then
+        comp_op=${tab[1]}
+    elif [[ ${tab[0]} == "UNZIP" ]]
+    then
+        decomp_bin=${tab[1]}
+    elif [[ ${tab[0]} == "UNZIPFLAGS" ]]
+    then
+        decomp_op=${tab[1]}
+    fi
+done <<< $output
+
+if [ -z $proj_dir ]
+then
+    exit 84
+fi
+
+while read -r line; do
+    file_c[nb_c]=$line
+    ((nb_c++))
+done <<< $(ls ./$proj_dir/ | grep .c$)
+
+while read -r line; do
+    source_c[nb_src]=$line
+    ((nb_src++))
+done <<< $(ls ./$proj_dir/$src_dir/ | grep .c$)
+
+touch $proj_dir/Makefile
+cp /dev/null $proj_dir/Makefile
+
+if [ -z $compil ]
+then
+    compil="gcc"
+fi
+if [ ! -z $name ]
+then
+    echo "NAME	= $name" >> $proj_dir/Makefile
+else
+    echo "NAME	= program" >> $proj_dir/Makefile
+fi
+echo "" >> $proj_dir/Makefile
+echo "CC	= $compil
+" >> $proj_dir/Makefile
+echo "CFLAGS = -I $include" >> $proj_dir/Makefile
+echo "
+RM	= rm -f
+" >> $proj_dir/Makefile
+for ((i = 0; nb_src - $i != 0; i++))
+do
+    if [ $i == 0 ]
+    then
+        echo "SRCS	= $src_dir/${source_c[i]} \\" >> $proj_dir/Makefile
+    else
+        echo "          $src_dir/${source_c[i]} \\" >> $proj_dir/Makefile
+    fi
+done
+echo "" >> $proj_dir/Makefile
+echo -n "OBJS	= $" >> $proj_dir/Makefile
+echo "(SRCS=.o)
+" >> $proj_dir/Makefile
+echo "CFLAG += $cflags
+" >> $proj_dir/Makefile
+echo -n "all: $" >> $proj_dir/Makefile
+echo -n "(NAME)
+
+$" >> $proj_dir/Makefile
+echo -n "(NAME): $" >> $proj_dir/Makefile
+echo -n "(OBJS)
+	 $" >> $proj_dir/Makefile
+echo -n "(CC) $" >> $proj_dir/Makefile
+echo -n "(SRCS) -o $" >> $proj_dir/Makefile
+echo -n "(NAME) $" >> $proj_dir/Makefile
+echo "(LDFLAGS)
+" >> $proj_dir/Makefile
+echo -n "clean:
+	$" >> $proj_dir/Makefile
+echo -n "(RM) $" >> $proj_dir/Makefile
+echo "(OBJS)
+" >> $proj_dir/Makefile
+echo -n "fclean: clean
+	$" >> $proj_dir/Makefile
+echo -n "(RM) $" >> $proj_dir/Makefile
+echo "(NAME)
+" >> $proj_dir/Makefile
+echo "re: fclean all
+" >> $proj_dir/Makefile
+echo -n "archive:
+	tar $comp_op $comp_bin.tar.gz ./$src_dir/*.c
+	@mv $comp_bin.tar.gz ./$back_up/
+	@echo " >> $proj_dir/Makefile
+echo "\"$comp_bin file generated.\"
+" >> $proj_dir/Makefile
+echo "delete:
+	rm ./$back_up/*
+" >> $proj_dir/Makefile
+echo -n "num:
+	@echo " >> $proj_dir/Makefile
+echo "\"Version 1.0\"
+" >> $proj_dir/Makefile
+echo ".PHONY: all clean fclean re" >> $proj_dir/Makefile
